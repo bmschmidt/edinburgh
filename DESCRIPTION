@@ -6,9 +6,15 @@ Description: R bindings for the Bookworm API, which allows easy access to facete
 Depends: R (>= 3.1.2)
 License: MIT + file LICENSE
 LazyData: true
-Imports: 
+Imports:
     RCurl,
-    RJSONIO
+    RJSONIO,
+    dplyr,
+    readr
 Suggests:
     ggplot2,
-    tidyr
+    tidyr,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
