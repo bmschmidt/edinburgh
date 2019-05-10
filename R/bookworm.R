@@ -28,68 +28,71 @@
 #' @examples
 #'
 #' library(dplyr)
-#' totals = bookworm(host="bookworm.htrc.illinois.edu", search_limits=list(),
-#' groups="date_year","counttype"=list("TotalTexts"),
-#' database="hathipd")
+#' totals <- bookworm(
+#'   host = "bookworm.htrc.illinois.edu", search_limits = list(),
+#'   groups = "date_year", "counttype" = list("TotalTexts"),
+#'   database = "hathipd"
+#' )
 #'
-#' plot(totals[totals$date_year %in% 1700:2000,],type='l',main="Total works in the Hathi Trust Public Domain corpus")
+#' plot(totals[totals$date_year %in% 1700:2000, ], type = "l", main = "Total works in the Hathi Trust Public Domain corpus")
 #'
-#' totals = bookworm(host="bookworm.htrc.illinois.edu", search_limits=list(),
-#' groups="date_year","counttype"=list("WordCount","TextCount"),
-#' database="hathipd")
-#' totals=totals[totals$date_year %in% 1700:2000,]
-#' plot(totals$date_year,totals$WordCount/totals$TextCount,type='l',main="Average length of works in the Hathi Trust Public Domain corpus")
+#' totals <- bookworm(
+#'   host = "bookworm.htrc.illinois.edu", search_limits = list(),
+#'   groups = "date_year", "counttype" = list("WordCount", "TextCount"),
+#'   database = "hathipd"
+#' )
+#' totals <- totals[totals$date_year %in% 1700:2000, ]
+#' plot(totals$date_year, totals$WordCount / totals$TextCount, type = "l", main = "Average length of works in the Hathi Trust Public Domain corpus")
 #'
-#' results = bookworm(host="bookworm.htrc.illinois.edu", search_limits=list("word" = list("evolution")),
-#' groups="date_year","counttype"=list("WordsPerMillion"),
-#' database="hathipd")
+#' results <- bookworm(
+#'   host = "bookworm.htrc.illinois.edu", search_limits = list("word" = list("evolution")),
+#'   groups = "date_year", "counttype" = list("WordsPerMillion"),
+#'   database = "hathipd"
+#' )
 #'
-#' plot(results[results$date_year %in% 1700:2000,],main="Usage of 'evolution' in the Hathi Trust Public Domain corpus")
-
-
-bookworm = function(
-  host=NULL,
-  port=80,
-  database=NULL,
-  method="return_tsv",
-  counttype=c("WordCount"),
-  compare_limits = NULL,
-  groups = NULL,
-  search_limits = RJSONIO::emptyNamedList,
-  query=list(),
-  ...
-) {
-
-  for (term in c("method","database","groups","search_limits","compare_limits","counttype")) {
+#' plot(results[results$date_year %in% 1700:2000, ], main = "Usage of 'evolution' in the Hathi Trust Public Domain corpus")
+bookworm <- function(
+                     host = NULL,
+                     port = 80,
+                     database = NULL,
+                     method = "data",
+                     format = "tsv",
+                     counttype = c("WordCount"),
+                     compare_limits = NULL,
+                     groups = NULL,
+                     search_limits = RJSONIO::emptyNamedList,
+                     query = list(),
+                     ...) {
+  for (term in c("groups", "search_limits", "compare_limits", "counttype")) {
     if (!is.null(get(term))) {
-      query[[term]] = get(term)
+      query[[term]] <- get(term)
     }
   }
-
-  for (term in c("sssssssssssssssssssssssssssssssssssssssssssssssssssss","groups")) {
-    if (!is.null(query[[term]])) {
-      query[[term]] = as.list(query[[term]])
+  for (term in c("method", "database", "format")) {
+    if (!is.null(get(term))) {
+      query[[term]] <- jsonlite::unbox(get(term))
     }
   }
 
   if (is.null(host)) stop("You must specify the hostname for the bookworm")
+
   for (needed in c("database")) {
     if (is.null(query[[needed]])) stop("You must specify a ", needed, " to run a query")
   }
-  additional_lims = list(...)
+
+  additional_lims <- list(...)
   for (limit in names(additional_lims)) {
-    additional_lims[[limit]] = as.list(additional_lims[[limit]])
-    query[["search_limits"]][[limit]] = additional_lims[[limit]]
+    additional_lims[[limit]] <- as.list(additional_lims[[limit]])
+    query[["search_limits"]][[limit]] <- additional_lims[[limit]]
   }
 
-  json = gsub("\n", " ", RJSONIO::toJSON(query,collapse=" "))
+  json <- gsub("\n", " ", jsonlite::toJSON(query))
   message(json)
-  json = URLencode(json,reserved=TRUE)
-  message(json)
-  destination = paste("http://",host,":",port,"/cgi-bin/dbbindings.py?query=",json,sep="")
+  json <- URLencode(json, reserved = TRUE)
+  destination <- paste("http://", host, ":", port, "/cgi-bin/dbbindings.py?query=", json, sep = "")
   message(destination)
-  if (method=="return_tsv") {
-    data = readr::read_delim(destination, quote="", na=c(""), quoted_na=FALSE,delim="\t")
+  if (format == "tsv") {
+    data <- readr::read_delim(destination, quote = "", na = c(""), quoted_na = FALSE, delim = "\t")
   }
 
   return(data)
