@@ -4,7 +4,6 @@ library(testthat)
 library(dplyr, quietly = T)
 context("Federalist Papers")
 
-
 test_data <- bookworm(host = "benschmidt.org", method = "return_tsv", database = "federalist", counttype = c("WordCount", "TextCount"), groups = c("author"))
 test_that(
   "Hamilton has a lot of words",

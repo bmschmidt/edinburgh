@@ -1,13 +1,13 @@
 Package: bookworm
 Title: R interface to Bookworm libraries for text analysis
-Version: 0.1
+Version: 0.2
 Authors@R: person("Benjamin", "Schmidt", email = "bmschmidt@gmail.com", role = c("aut", "cre"))
 Description: R bindings for the Bookworm API, which allows easy access to faceted bag-of-words data on large textual collections. The main function is "bookworm" 
 Depends: R (>= 3.1.2)
 License: MIT + file LICENSE
 LazyData: true
 Imports:
-    RCurl,
+    jsonlite,
     RJSONIO,
     dplyr,
     readr
@@ -17,4 +17,4 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 6.0.1
+RoxygenNote: 7.1.1

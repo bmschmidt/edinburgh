@@ -4,9 +4,20 @@
 \alias{bookworm}
 \title{Run a bookworm query}
 \usage{
-bookworm(host = NULL, port = 80, database = NULL, method = "return_tsv",
-  counttype = c("WordCount"), compare_limits = NULL, groups = NULL,
-  search_limits = RJSONIO::emptyNamedList, query = list(), ...)
+bookworm(
+  host = NULL,
+  port = 80,
+  database = NULL,
+  method = "data",
+  format = "tsv",
+  counttype = c("WordCount"),
+  protocol = "https",
+  compare_limits = NULL,
+  groups = NULL,
+  search_limits = RJSONIO::emptyNamedList,
+  query = list(),
+  ...
+)
 }
 \arguments{
 \item{host}{The domain where the Bookworm lives.}
@@ -16,9 +27,13 @@ bookworm(host = NULL, port = 80, database = NULL, method = "return_tsv",
 \item{database}{The name of the bookworm to use at the host.}
 
 \item{method}{The Bookworm API method to be used. Only "return_tsv" works particularly
-well at the moment.}
+well at the moment. In post 2018 Bookworms, use "data".}
+
+\item{format}{The format type. tsv, json, feather. In post-2018 bookworms, use "tsv" here.}
 
 \item{counttype}{A list of summary statistics to calculate.}
+
+\item{protocol}{"https" or "http". Overridden if included in host.}
 
 \item{compare_limits}{The limits for a comparison. Takes the same format as search_limits. If NULL, none is passed and default behavior
 is applied. (Usually the best choice for non-experts.)}
@@ -51,23 +66,30 @@ is sometimes easier when dispatching calls programatically.
 \examples{
 
 library(dplyr)
-totals = bookworm(host="bookworm.htrc.illinois.edu", search_limits=list(),
-groups="date_year","counttype"=list("TotalTexts"),
-database="hathipd")
+totals <- bookworm(
+  host = "bookworm.htrc.illinois.edu",
+  groups = "date_year", "counttype" = "TotalTexts",
+  database = "Bookworm2016", method = "return_tsv"
+)
 
-plot(totals[totals$date_year \%in\% 1700:2000,],type='l',main="Total works in the Hathi Trust Public Domain corpus")
+plot(totals[totals$date_year \%in\% 1700:2000, ], type = "l", main = "Total works in the Hathi Trust Public Domain corpus")
 
-totals = bookworm(host="bookworm.htrc.illinois.edu", search_limits=list(),
-groups="date_year","counttype"=list("WordCount","TextCount"),
-database="hathipd")
-totals=totals[totals$date_year \%in\% 1700:2000,]
-plot(totals$date_year,totals$WordCount/totals$TextCount,type='l',main="Average length of works in the Hathi Trust Public Domain corpus")
+totals <- bookworm(
+  host = "bookworm.htrc.illinois.edu",
+  groups = "date_year", "counttype" = c("WordCount", "TextCount"),
+  database = "Bookworm2016", method="return_tsv"
+)
 
-results = bookworm(host="bookworm.htrc.illinois.edu", search_limits=list("word" = list("evolution")),
-groups="date_year","counttype"=list("WordsPerMillion"),
-database="hathipd")
+totals <- totals[totals$date_year \%in\% 1700:2000, ]
+plot(totals$date_year, totals$WordCount / totals$TextCount, type = "l", main = "Average length of works in the Hathi Trust Public Domain corpus")
 
-plot(results[results$date_year \%in\% 1700:2000,],main="Usage of 'evolution' in the Hathi Trust Public Domain corpus")
+results <- bookworm(
+  host = "bookworm.htrc.illinois.edu", search_limits = list("word" = "evolution"),
+  groups = "date_year", "counttype" = "WordsPerMillion",
+  database = "Bookworm2016", method = "return_tsv"
+)
+
+plot(results[results$date_year \%in\% 1700:2000, ], main = "Usage of 'evolution' in the Hathi Trust Public Domain corpus")
 }
 \author{
 Benjamin Schmidt
